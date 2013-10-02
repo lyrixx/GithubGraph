@@ -1,0 +1,23 @@
+{
+    "name": "lyrixx/github-graph",
+    "description": "Graph the number of PR, issue on your github repository",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Grégoire Pineau",
+            "email": "lyrixx@lyrixx.info"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "doctrine/cache": "1.2.0",
+        "knplabs/github-api": "1.2.*@dev",
+        "pimple/pimple": "~1.0",
+        "symfony/console": "~2.3",
+        "symfony/yaml": "~2.0"
+    },
+    "autoload": {
+        "psr-0": { "Lyrixx\\GithubGraph": "" }
+    },
+    "target-dir": "Lyrixx/GithubGraph"
+}

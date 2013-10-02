@@ -1,0 +1,11 @@
+parameters:
+    github_api_token: AZERTY
+    repositories:
+        - symfony/symfony
+        - silex/silex
+    graphite:
+        # do not forget the trailing dot
+        prefix: github.
+        host: 127.0.0.1
+        port: 2003
+        protocol: tcp
