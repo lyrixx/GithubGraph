@@ -43,6 +43,11 @@ class GraphCommand extends Command
         $issuesClosed = $this->github->getIssues($organisation, $repositoryName, 'close', $reportBuilder);
 
         $issues = array_merge($issuesOpened, $issuesClosed);
+        if (!$issues) {
+            $output->writeln('<info>The repository does not contain any issues</info>');
+
+            return 0;
+        }
 
         $issues = $this->issueUtility->sort($issues);
 
