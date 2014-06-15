@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AnalyzeRepositoryCommand extends Command
+class GraphCommand extends Command
 {
     private $github;
     private $issueUtility;
@@ -26,8 +26,8 @@ class AnalyzeRepositoryCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('analyze')
-            ->setDescription('Fetch issues and inject them in metric')
+            ->setName('graph')
+            ->setDescription('Fetch issues and inject them in graphite')
             ->addArgument('repository', InputArgument::REQUIRED)
         ;
     }

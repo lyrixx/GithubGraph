@@ -58,6 +58,4 @@ $container['graphite.api'] = $container->share(function ($container) {
     return new Lyrixx\GithubGraph\Graphite\Api($container['graphite']['prefix'], $container['graphite']['host'], $container['graphite']['port'], $container['graphite']['protocol']);
 });
 
-$application = new Symfony\Component\Console\Application('GithubGraph', 0.1);
-$application->add(new Lyrixx\GithubGraph\Console\Command\AnalyzeRepositoryCommand($container['github'], $container['issue.utilily']));
-$application->run();
+(new Lyrixx\GithubGraph\Console\Application($container))->run();

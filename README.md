@@ -19,7 +19,7 @@ Installation
     cd github-graph
     cp config.yml-dist config.yml
     # configure this file
-    php bin/github-graph analyze symfony/symfony
+    php bin/github-graph symfony/symfony
 
 You will probably need to update `storage-schemas.conf` of the carbon configuration:
 
