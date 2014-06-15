@@ -1,10 +1,10 @@
 <?php
 
-namespace Lyrixx\GithubGraph\Commands;
+namespace Lyrixx\GithubGraph\Console\Command;
 
-use Lyrixx\GithubGraph\Commands\Report\ReportBuilder;
+use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 use Lyrixx\GithubGraph\Github\Github;
-use Lyrixx\GithubGraph\Model\IssueUtility;
+use Lyrixx\GithubGraph\Util\IssueUtility;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

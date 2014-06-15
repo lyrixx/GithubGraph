@@ -51,7 +51,7 @@ $container['github'] = $container->share(function ($container) {
 });
 
 $container['issue.utilily'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Model\IssueUtility($container['graphite.api']);
+    return new Lyrixx\GithubGraph\Util\IssueUtility($container['graphite.api']);
 });
 
 $container['graphite.api'] = $container->share(function ($container) {
@@ -59,5 +59,5 @@ $container['graphite.api'] = $container->share(function ($container) {
 });
 
 $application = new Symfony\Component\Console\Application('GithubGraph', 0.1);
-$application->add(new Lyrixx\GithubGraph\Commands\AnalyzeRepositoryCommand($container['github'], $container['issue.utilily']));
+$application->add(new Lyrixx\GithubGraph\Console\Command\AnalyzeRepositoryCommand($container['github'], $container['issue.utilily']));
 $application->run();
