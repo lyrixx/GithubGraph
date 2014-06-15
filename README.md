@@ -3,8 +3,8 @@ GithubGraph
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cc494548-74b1-43e1-bbb6-1ca053552123/mini.png)](https://insight.sensiolabs.com/projects/cc494548-74b1-43e1-bbb6-1ca053552123)
 
-This little app graph all Github history for a project, and
-push some data to a graphite server.
+This little app graph all Github history for a project, and push some data to a
+graphite server.
 
 Requirements
 ------------
@@ -19,9 +19,9 @@ Installation
     cd github-graph
     cp config.yml-dist config.yml
     # configure this file
-    ./github-graph.php analyze symfony/symfony
+    php bin/github-graph analyze symfony/symfony
 
-You will probably need to update `storage-schemas.conf` of the carbon configuration
+You will probably need to update `storage-schemas.conf` of the carbon configuration:
 
     [github]
     pattern = ^github
