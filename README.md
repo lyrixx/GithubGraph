@@ -12,8 +12,18 @@ Requirements
 * php 5.5+
 * a graphite server
 
-Installation
-------------
+Installation (phar)
+-------------------
+
+Download the latest [phar](https://github.com/lyrixx/GithubGraph/releases), then
+create a `config.yml` file. See the [sample](https://github.com/lyrixx/GithubGraph/blob/master/config.yml-dist).
+
+Finally use it:
+
+    php github-graph.phar symfony/symfony
+
+Installation (manual)
+---------------------
 
     composer create-project lyrixx/github-graph
     cd github-graph
