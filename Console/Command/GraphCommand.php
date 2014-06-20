@@ -1,16 +1,16 @@
 <?php
 
-namespace Lyrixx\GithubGraph\Commands;
+namespace Lyrixx\GithubGraph\Console\Command;
 
-use Lyrixx\GithubGraph\Commands\Report\ReportBuilder;
+use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 use Lyrixx\GithubGraph\Github\Github;
-use Lyrixx\GithubGraph\Model\IssueUtility;
+use Lyrixx\GithubGraph\Util\IssueUtility;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AnalyzeRepositoryCommand extends Command
+class GraphCommand extends Command
 {
     private $github;
     private $issueUtility;
@@ -26,8 +26,8 @@ class AnalyzeRepositoryCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('analyze')
-            ->setDescription('Fetch issues and inject them in metric')
+            ->setName('graph')
+            ->setDescription('Fetch issues and inject them in graphite')
             ->addArgument('repository', InputArgument::REQUIRED)
         ;
     }
@@ -43,6 +43,11 @@ class AnalyzeRepositoryCommand extends Command
         $issuesClosed = $this->github->getIssues($organisation, $repositoryName, 'close', $reportBuilder);
 
         $issues = array_merge($issuesOpened, $issuesClosed);
+        if (!$issues) {
+            $output->writeln('<info>The repository does not contain any issues</info>');
+
+            return 0;
+        }
 
         $issues = $this->issueUtility->sort($issues);
 

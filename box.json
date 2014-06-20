@@ -1,0 +1,17 @@
+{
+    "chmod": "0755",
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": ["Tests"],
+            "in": "."
+        },
+        {
+            "name": "*.pem*",
+            "in": "vendor"
+        }
+    ],
+    "main": "bin/github-graph",
+    "output": "github-graph.phar",
+    "stub": true
+}

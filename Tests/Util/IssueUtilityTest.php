@@ -1,9 +1,9 @@
 <?php
 
-namespace Lyrixx\GithubGraph\Tests\Model;
+namespace Lyrixx\GithubGraph\Tests\Util;
 
 use Lyrixx\GithubGraph\Model\Issue;
-use Lyrixx\GithubGraph\Model\IssueUtility;
+use Lyrixx\GithubGraph\Util\IssueUtility;
 
 class IssueUtilityTest extends \PHPUnit_Framework_TestCase
 {

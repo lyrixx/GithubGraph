@@ -1,6 +1,6 @@
 <?php
 
-namespace Lyrixx\GithubGraph\Commands\Report;
+namespace Lyrixx\GithubGraph\Console\Report;
 
 use Symfony\Component\Console\Helper\ProgressHelper;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -4,7 +4,7 @@ namespace Lyrixx\GithubGraph\Github;
 
 use Doctrine\Common\Cache\Cache;
 use Github\Client;
-use Lyrixx\GithubGraph\Commands\Report\ReportBuilder;
+use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 
 class Github
 {

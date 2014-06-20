@@ -1,13 +1,13 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-if (!file_exists(__DIR__.'/config.yml')) {
+if (!file_exists(getcwd().'/config.yml')) {
     throw new RuntimeException('The configuration file config.yml does not exist. Please, read the README.');
 }
 
-$config = Symfony\Component\Yaml\Yaml::parse(file_get_contents(__DIR__.'/config.yml'));
+$config = Symfony\Component\Yaml\Yaml::parse(file_get_contents(getcwd().'/config.yml'));
 
 $container = new Pimple($config['parameters']);
 
@@ -51,13 +51,11 @@ $container['github'] = $container->share(function ($container) {
 });
 
 $container['issue.utilily'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Model\IssueUtility($container['graphite.api']);
+    return new Lyrixx\GithubGraph\Util\IssueUtility($container['graphite.api']);
 });
 
 $container['graphite.api'] = $container->share(function ($container) {
     return new Lyrixx\GithubGraph\Graphite\Api($container['graphite']['prefix'], $container['graphite']['host'], $container['graphite']['port'], $container['graphite']['protocol']);
 });
 
-$application = new Symfony\Component\Console\Application('GithubGraph', 0.1);
-$application->add(new Lyrixx\GithubGraph\Commands\AnalyzeRepositoryCommand($container['github'], $container['issue.utilily']));
-$application->run();
+(new Lyrixx\GithubGraph\Console\Application($container))->run();

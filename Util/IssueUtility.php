@@ -1,9 +1,11 @@
 <?php
 
-namespace Lyrixx\GithubGraph\Model;
+namespace Lyrixx\GithubGraph\Util;
 
-use Lyrixx\GithubGraph\Commands\Report\ReportBuilder;
+use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 use Lyrixx\GithubGraph\Graphite\Api as GraphiteApi;
+use Lyrixx\GithubGraph\Model\Issue;
+use Lyrixx\GithubGraph\Model\IssuesCollection;
 
 class IssueUtility
 {
