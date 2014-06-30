@@ -1,9 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "2785fb17616c4d4bec585000d921a106",
+    "hash": "333b50bd81a40a47ab799be9d9c08fcd",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -334,9 +335,9 @@
     "stability-flags": {
         "knplabs/github-api": 20
     },
-    "platform": [
-
-    ],
+    "platform": {
+        "php": ">=5.5.0"
+    },
     "platform-dev": [
 
     ]
