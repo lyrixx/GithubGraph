@@ -24,11 +24,19 @@ class ReportBuilder
 
     public function comment($message)
     {
+        if (OutputInterface::VERBOSITY_VERBOSE > $this->output->getVerbosity()) {
+            return;
+        }
+
         $this->output->writeln(sprintf('<comment>%s</comment>', $message));
     }
 
     public function startProgress($steps, $redrawFrequency = 1)
     {
+        if (OutputInterface::VERBOSITY_VERY_VERBOSE > $this->output->getVerbosity()) {
+            return;
+        }
+
         $this->progress = new ProgressHelper();
 
         $this->progress->setRedrawFrequency($redrawFrequency);
@@ -38,6 +46,10 @@ class ReportBuilder
 
     public function advanceProgress()
     {
+        if (OutputInterface::VERBOSITY_VERY_VERBOSE > $this->output->getVerbosity()) {
+            return;
+        }
+
         if (null === $this->progress) {
             throw new \LogicException('Progress has not been started.');
         }
@@ -47,6 +59,10 @@ class ReportBuilder
 
     public function endProgress()
     {
+        if (OutputInterface::VERBOSITY_VERY_VERBOSE > $this->output->getVerbosity()) {
+            return;
+        }
+
         if (null === $this->progress) {
             throw new \LogicException('Progress has not been started.');
         }
