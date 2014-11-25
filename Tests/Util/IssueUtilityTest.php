@@ -11,9 +11,9 @@ class IssueUtilityTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $graphiteApi = $this->getMockBuilder('Lyrixx\GithubGraph\Graphite\Api')->disableOriginalConstructor()->getMock();
+        $graphiteClient = $this->getMockBuilder('Lyrixx\GithubGraph\Graphite\Client')->disableOriginalConstructor()->getMock();
 
-        $this->issueUtility = new IssueUtility($graphiteApi);
+        $this->issueUtility = new IssueUtility($graphiteClient);
     }
 
     public function testCreateHistory()
