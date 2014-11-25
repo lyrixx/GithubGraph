@@ -8,7 +8,7 @@ use Github\Client as GithubClient;
 use Lyrixx\GithubGraph\Console\Command\GraphCommand;
 use Lyrixx\GithubGraph\Github\Github;
 use Lyrixx\GithubGraph\Graphite\Client as GraphiteClient;
-use Lyrixx\GithubGraph\Util\IssueUtility;
+use Lyrixx\GithubGraph\Util\ObjectUtility;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
@@ -36,8 +36,8 @@ $github = new Github($githubClient, $fsCache);
 
 $graphitClient = new GraphiteClient($config['graphite']['prefix'], $config['graphite']['host'], $config['graphite']['port'], $config['graphite']['protocol']);
 
-$issueUtility = new IssueUtility($graphitClient);
+$issueUtility = new ObjectUtility($graphitClient);
 
-$application = new Lyrixx\GithubGraph\Console\Application('GithubGraph', 0.2);
+$application = new Lyrixx\GithubGraph\Console\Application('GithubGraph', '0.3.0-DEV');
 $application->add(new GraphCommand($github, $issueUtility));
 $application->run();

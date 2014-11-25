@@ -4,7 +4,7 @@ namespace Lyrixx\GithubGraph\Console\Command;
 
 use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 use Lyrixx\GithubGraph\Github\Github;
-use Lyrixx\GithubGraph\Util\IssueUtility;
+use Lyrixx\GithubGraph\Util\ObjectUtility;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,12 +13,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 class GraphCommand extends Command
 {
     private $github;
-    private $issueUtility;
+    private $objectUtility;
 
-    public function __construct(Github $github, IssueUtility $issueUtility)
+    public function __construct(Github $github, ObjectUtility $objectUtility)
     {
         $this->github = $github;
-        $this->issueUtility = $issueUtility;
+        $this->objectUtility = $objectUtility;
 
         parent::__construct();
     }
@@ -39,26 +39,33 @@ class GraphCommand extends Command
         $reportBuilder = new ReportBuilder($output);
 
         $output->writeln('<info>Download issues</info>');
-        $issuesOpened = $this->github->getIssues($organisation, $repositoryName, 'open', $reportBuilder);
-        $issuesClosed = $this->github->getIssues($organisation, $repositoryName, 'close', $reportBuilder);
+        $issues = $this->github->getIssues($organisation, $repositoryName, $reportBuilder);
 
-        $issues = array_merge($issuesOpened, $issuesClosed);
-        if (!$issues) {
-            $output->writeln('<info>The repository does not contain any issues</info>');
+        $output->writeln('<info>Download pull requests</info>');
+        $pullRequests = $this->github->getPullRequests($organisation, $repositoryName, $reportBuilder);
+
+        $output->writeln('<info>Hydrate issues</info>');
+        $issues = $this->objectUtility->hydrate($issues, 'issue', $reportBuilder);
+
+        $output->writeln('<info>Hydrate pull requests</info>');
+        $pullRequests = $this->objectUtility->hydrate($pullRequests, 'pull_request', $reportBuilder);
+
+        $output->writeln('<info>Merge and sort issues and pull requests</info>');
+        $objects = array_merge($issues, $pullRequests);
+        $objects = $this->objectUtility->sort($objects);
+
+        if (!$objects) {
+            $output->writeln('<info>The repository does not contain any issues or pull requests</info>');
 
             return 0;
         }
 
-        $issues = $this->issueUtility->sort($issues);
+        $output->writeln(sprintf('<info>Oldest issue was created on <comment>%s</comment></info>', $objects[0]->getOpenAt()->format('Y-m-d')));
 
-        $output->writeln('<info>Hydrate issues</info>');
-        $issues = $this->issueUtility->hydrate($issues, $input->getArgument('repository'), $reportBuilder);
-        $output->writeln(sprintf('<info>Oldest issue was created on <comment>%s</comment></info>', $issues[0]->getOpenAt()->format('Y-m-d')));
-
-        $history = $this->issueUtility->createHistory($issues);
+        $history = $this->objectUtility->createHistory($objects);
 
         $output->writeln('<info>Replay History</info>');
-        $history = $this->issueUtility->replayHistory($history, $organisation, $repositoryName, $issues[0]->getOpenAtDay(), $reportBuilder);
+        $history = $this->objectUtility->replayHistory($history, $organisation, $repositoryName, $issues[0]->getOpenAt(), $reportBuilder);
 
         $output->writeln('<info>Finished</info>');
     }

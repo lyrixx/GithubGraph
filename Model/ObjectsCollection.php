@@ -2,7 +2,7 @@
 
 namespace Lyrixx\GithubGraph\Model;
 
-class IssuesCollection
+class ObjectsCollection
 {
     public $issues;
     public $issuesOpen;
