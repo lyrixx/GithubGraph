@@ -3,59 +3,41 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
+use Doctrine\Common\Cache\FilesystemCache;
+use Github\Client as GithubClient;
+use Lyrixx\GithubGraph\Console\Command\GraphCommand;
+use Lyrixx\GithubGraph\Github\Github;
+use Lyrixx\GithubGraph\Graphite\Client as GraphiteClient;
+use Lyrixx\GithubGraph\Util\IssueUtility;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
+
 if (!file_exists(getcwd().'/config.yml')) {
     throw new RuntimeException('The configuration file config.yml does not exist. Please, read the README.');
 }
 
-$config = Symfony\Component\Yaml\Yaml::parse(file_get_contents(getcwd().'/config.yml'));
+$config = Yaml::parse(file_get_contents(getcwd().'/config.yml'));
+if (!isset($config['parameters'])) {
+    throw new RuntimeException('The configuration file config.yml does not contains a parameters key. Please, read the README.');
+}
+$config = $config['parameters'];
 
-$container = new Pimple($config['parameters']);
+$cacheDir = sys_get_temp_dir().'/github-graph/object';
 
-$container['create_dir'] = $container->protect(function ($directory) {
-    if (!is_dir($directory) && !@mkdir($directory, 0777, true)) {
-        throw new \InvalidArgumentException(sprintf(
-            'The directory "%s" does not exist and could not be created.',
-            $directory
-        ));
-    }
+$fs = new Filesystem();
+$fs->mkdir($cacheDir);
 
-    if (!is_writable($directory)) {
-        throw new \InvalidArgumentException(sprintf(
-            'The directory "%s" is not writable.',
-            $directory
-        ));
-    }
-});
+$fsCache = new FilesystemCache($cacheDir);
 
-$container['cache_dir.object'] = $container->share(function ($container) {
-    $directory = sys_get_temp_dir().'/github-graph/object';
+$githubClient = new GithubClient();
+$githubClient->authenticate($config['github_api_token'], null, GithubClient::AUTH_HTTP_TOKEN);
 
-    $container['create_dir']($directory);
+$github = new Github($githubClient, $fsCache);
 
-    return $directory;
-});
+$graphitClient = new GraphiteClient($config['graphite']['prefix'], $config['graphite']['host'], $config['graphite']['port'], $config['graphite']['protocol']);
 
-$container['github.cache.object'] = $container->share(function ($container) {
-    return new Doctrine\Common\Cache\FilesystemCache($container['cache_dir.object']);
-});
+$issueUtility = new IssueUtility($graphitClient);
 
-$container['github.client'] = $container->share(function ($container) {
-    $client = new Github\Client();
-    $client->authenticate($container['github_api_token'], null, Github\Client::AUTH_HTTP_TOKEN);
-
-    return $client;
-});
-
-$container['github'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Github\Github($container['github.client'], $container['github.cache.object']);
-});
-
-$container['issue.utilily'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Util\IssueUtility($container['graphite.client']);
-});
-
-$container['graphite.client'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Graphite\Client($container['graphite']['prefix'], $container['graphite']['host'], $container['graphite']['port'], $container['graphite']['protocol']);
-});
-
-(new Lyrixx\GithubGraph\Console\Application($container))->run();
+$application = new Lyrixx\GithubGraph\Console\Application('GithubGraph', 0.2);
+$application->add(new GraphCommand($github, $issueUtility));
+$application->run();

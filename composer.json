@@ -9,11 +9,11 @@
         }
     ],
     "require": {
+        "doctrine/cache": "~1.2.0",
+        "knplabs/github-api": "~1.3.0",
         "php": ">=5.5.0",
-        "doctrine/cache": "1.2.0",
-        "knplabs/github-api": "1.2.*@dev",
-        "pimple/pimple": "~1.0",
         "symfony/console": "~2.3",
+        "symfony/filesystem": "~2.0",
         "symfony/yaml": "~2.0"
     },
     "autoload": {
