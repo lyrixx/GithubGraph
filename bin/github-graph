@@ -51,11 +51,11 @@ $container['github'] = $container->share(function ($container) {
 });
 
 $container['issue.utilily'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Util\IssueUtility($container['graphite.api']);
+    return new Lyrixx\GithubGraph\Util\IssueUtility($container['graphite.client']);
 });
 
-$container['graphite.api'] = $container->share(function ($container) {
-    return new Lyrixx\GithubGraph\Graphite\Api($container['graphite']['prefix'], $container['graphite']['host'], $container['graphite']['port'], $container['graphite']['protocol']);
+$container['graphite.client'] = $container->share(function ($container) {
+    return new Lyrixx\GithubGraph\Graphite\Client($container['graphite']['prefix'], $container['graphite']['host'], $container['graphite']['port'], $container['graphite']['protocol']);
 });
 
 (new Lyrixx\GithubGraph\Console\Application($container))->run();

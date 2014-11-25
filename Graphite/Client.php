@@ -2,7 +2,7 @@
 
 namespace Lyrixx\GithubGraph\Graphite;
 
-class Api
+class Client
 {
     private $prefix;
     private $host;

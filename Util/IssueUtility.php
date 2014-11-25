@@ -3,13 +3,13 @@
 namespace Lyrixx\GithubGraph\Util;
 
 use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
-use Lyrixx\GithubGraph\Graphite\Api as GraphiteApi;
+use Lyrixx\GithubGraph\Graphite\Client;
 use Lyrixx\GithubGraph\Model\Issue;
 use Lyrixx\GithubGraph\Model\IssuesCollection;
 
 class IssueUtility
 {
-    public function __construct(GraphiteApi $graphite)
+    public function __construct(Client $graphite)
     {
         $this->graphite = $graphite;
     }
