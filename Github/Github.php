@@ -4,6 +4,7 @@ namespace Lyrixx\GithubGraph\Github;
 
 use Doctrine\Common\Cache\Cache;
 use Github\Client;
+use Github\ResultPager;
 use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 
 class Github
@@ -24,21 +25,39 @@ class Github
         return $repo->show($organisation, $repositoryName);
     }
 
-    public function getIssues($organisation, $repositoryName, $state, ReportBuilder $reportBuilder = null)
+    public function getIssues($organisation, $repositoryName, ReportBuilder $reportBuilder = null)
     {
-        $reportBuilder and $reportBuilder->comment(sprintf('Download %s issues', $state));
+        $issues = $this->getObjects($organisation, $repositoryName, 'issue', $reportBuilder);
 
+        // Note: Every pull request is an issue, but not every issue is a pull
+        // request. If the issue is not a pull request, the response omits the
+        // pull_request attribute.
+        $issues = array_filter($issues, function ($issue) {
+            return !isset($issue['pull_request']['url']);
+        });
+
+        return $issues;
+    }
+
+    public function getPullRequests($organisation, $repositoryName, ReportBuilder $reportBuilder = null)
+    {
+        return $this->getObjects($organisation, $repositoryName, 'pull_request', $reportBuilder);
+    }
+
+    private function getObjects($organisation, $repositoryName, $type, ReportBuilder $reportBuilder = null)
+    {
+        $parameters = array();
         $parameters['per_page'] = 100;
-        $parameters['state'] = $state;
-        $cacheId = sprintf('issues-%s-%s-%s', $organisation, $repositoryName, md5(serialize($parameters)));
+        $parameters['state'] = 'all';
+        $cacheId = sprintf('%s-%s-%s-%s', $organisation, $repositoryName, $type, md5(json_encode($parameters)));
         if ($issues = $this->cache->contains($cacheId)) {
             return $this->cache->fetch($cacheId);
         }
 
-        $issueApi = $this->client->api('issue');
-        $issues = $issueApi->all($organisation, $repositoryName, $parameters);
+        $paginator = new ResultPager($this->client);
+        $issues = $paginator->fetch($this->client->api($type), 'all', array($organisation, $repositoryName, $parameters));
 
-        $pagination = $this->client->getHttpClient()->getLastResponse()->getPagination();
+        $pagination = $paginator->getPagination();
         if (!$pagination) {
             $this->cache->save($cacheId, $issues);
 
@@ -50,19 +69,10 @@ class Github
         $reportBuilder and $reportBuilder->comment(sprintf('%d page to download', $nbPages));
         $reportBuilder and $reportBuilder->startProgress($nbPages);
         $reportBuilder and $reportBuilder->advanceProgress();
-        $page = 2;
-        do {
-            $parameters['page'] = $page;
-            $issues = array_merge($issues, $issueApi->all($organisation, $repositoryName, $parameters));
-            $pagination = $this->client->getHttpClient()->getLastResponse()->getPagination();
-
+        while ($paginator->hasNext()) {
+            $issues = array_merge($issues, $paginator->fetchNext());
             $reportBuilder and $reportBuilder->advanceProgress();
-
-            if (!isset($pagination['next'])) {
-                break;
-            }
-            $page = $this->getPageParameter($pagination['next']);
-        } while (true);
+        }
 
         $reportBuilder and $reportBuilder->endProgress();
 

@@ -20,4 +20,3 @@ class Application extends SymfonyApplication
         return $inputDefinition;
     }
 }
-

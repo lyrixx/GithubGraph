@@ -4,93 +4,94 @@ namespace Lyrixx\GithubGraph\Util;
 
 use Lyrixx\GithubGraph\Console\Report\ReportBuilder;
 use Lyrixx\GithubGraph\Graphite\Client;
-use Lyrixx\GithubGraph\Model\Issue;
-use Lyrixx\GithubGraph\Model\IssuesCollection;
+use Lyrixx\GithubGraph\Model\Object;
+use Lyrixx\GithubGraph\Model\ObjectsCollection;
 
-class IssueUtility
+class ObjectUtility
 {
     public function __construct(Client $graphite)
     {
         $this->graphite = $graphite;
     }
 
-    public function sort($issues)
+    public function sort($objects)
     {
-        usort($issues, function ($v1, $v2) {
-            return $v1['number'] > $v2['number'];
+        usort($objects, function (Object $v1, Object $v2) {
+            return $v1->getOpenAt() > $v2->getOpenAt();
         });
 
-        return $issues;
+        return $objects;
     }
 
-    public function hydrate(array $issues, $repository, ReportBuilder $reportBuilder = null)
+    public function hydrate(array $objects, $type, ReportBuilder $reportBuilder = null)
     {
-        $reportBuilder and $reportBuilder->startProgress(count($issues), 20);
+        $reportBuilder and $reportBuilder->startProgress(count($objects), 20);
 
-        $githubIssues = array();
-        foreach ($issues as $issue) {
-            $githubIssue = new Issue();
-            $githubIssue->mapFromGithubApi($issue, $repository);
-            $githubIssues[] = $githubIssue;
+        $githubObjects = array();
+        foreach ($objects as $object) {
+            $githubObject = new Object();
+            $githubObject->mapFromGithubApi($object, $type);
+            $githubObjects[] = $githubObject;
 
             $reportBuilder and $reportBuilder->advanceProgress();
         }
 
         $reportBuilder and $reportBuilder->endProgress();
 
-        return $githubIssues;
+        return $githubObjects;
     }
 
-    public function createHistory(array $issues)
+    public function createHistory(array $objects)
     {
-        $firstDay = clone $issues[0]->getOpenAtDay();
-        $githubIssues = new IssuesCollection();
+        $firstDay = clone $objects[0]->getOpenAt();
+        $firstDay->modify('-1 day');
+        $objectsCollection = new ObjectsCollection();
         for ($day = $firstDay; $day < new \DateTime('tomorrow'); $day->modify('+1day')) {
-            $githubIssues->resetNbByDay();
-            foreach ($issues as $k => $issue) {
-                if ($issue->isOpenedAtDay($day)) {
-                    if ($issue->isPullRequest()) {
-                        $githubIssues->incrementNbPrsOpenedByDay();
+            $objectsCollection->resetNbByDay();
+            foreach ($objects as $k => $object) {
+                if ($object->isOpenedOn($day)) {
+                    if ($object->isPullRequest()) {
+                        $objectsCollection->prs->attach($object);
+                        $objectsCollection->incrementNbPrsOpenedByDay();
                     } else {
-                        $githubIssues->incrementNbIssuesOpenedByDay();
+                        $objectsCollection->issues->attach($object);
+                        $objectsCollection->incrementNbIssuesOpenedByDay();
                     }
                 }
 
-                if ($issue->isClosedAtDay($day)) {
-                    if ($issue->isPullRequest()) {
-                        $githubIssues->incrementNbPrsClosedByDay();
+                if ($object->isClosedOn($day)) {
+                    if ($object->isPullRequest()) {
+                        $objectsCollection->incrementNbPrsClosedByDay();
                     } else {
-                        $githubIssues->incrementNbIssuesClosedByDay();
+                        $objectsCollection->incrementNbIssuesClosedByDay();
                     }
                 }
 
-                if ($issue->isOpenAtDay($day)) {
-                    if ($issue->isPullRequest()) {
-                        $githubIssues->prs->attach($issue);
-                        $githubIssues->prsOpen->attach($issue);
+                if ($object->isOpenOn($day)) {
+                    if ($object->isPullRequest()) {
+                        $objectsCollection->prsOpen->attach($object);
                     } else {
-                        $githubIssues->issues->attach($issue);
-                        $githubIssues->issuesOpen->attach($issue);
-
+                        $objectsCollection->issuesOpen->attach($object);
                     }
                 } else {
-                    if ($issue->isPullRequest()) {
-                        $githubIssues->prsOpen->detach($issue);
+                    if ($object->isPullRequest()) {
+                        $objectsCollection->prsOpen->detach($object);
                     } else {
-                        $githubIssues->issuesOpen->detach($issue);
+                        $objectsCollection->issuesOpen->detach($object);
                     }
                     // Optimization: If the issue is closed, no need to re-compute it
-                    if ($githubIssues->issues->contains($issue) || $githubIssues->prs->contains($issue)) {
-                        unset($issues[$k]);
+                    if ($objectsCollection->issues->contains($object) || $objectsCollection->prs->contains($object)) {
+                        unset($objects[$k]);
                     }
                 }
                 // Optimization: If the current issue is not yet open, so all
                 // other issue will be in the same state
-                if ($day < $issue->getOpenAtDay()) {
+                if ($day < $object->getOpenAt()) {
                     break;
                 }
             }
-            yield $day => $githubIssues;
+
+            yield $day => $objectsCollection;
         }
     }
 
@@ -104,8 +105,8 @@ class IssueUtility
 
         $reportBuilder and $reportBuilder->startProgress((new \DateTime('tomorrow'))->diff($firstDay)->days);
 
-        foreach ($history as $day => $issuesCollection) {
-            $counts = $issuesCollection->count();
+        foreach ($history as $day => $objectsCollection) {
+            $counts = $objectsCollection->count();
             $timestamp = $day->format('U');
 
             $this->graphite->push($prefix.'issue.total', $counts['issues'], $timestamp);
