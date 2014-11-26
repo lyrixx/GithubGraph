@@ -4,7 +4,7 @@ GithubGraph
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cc494548-74b1-43e1-bbb6-1ca053552123/mini.png)](https://insight.sensiolabs.com/projects/cc494548-74b1-43e1-bbb6-1ca053552123)
 
 This little app graph all Github history for a project, and push some data to a
-graphite server.
+[graphite server](http://graphite.wikidot.com/).
 
 Requirements
 ------------
