@@ -65,7 +65,7 @@ class GraphCommand extends Command
         $history = $this->objectUtility->createHistory($objects);
 
         $output->writeln('<info>Replay History</info>');
-        $history = $this->objectUtility->replayHistory($history, $organisation, $repositoryName, $issues[0]->getOpenAt(), $reportBuilder);
+        $history = $this->objectUtility->replayHistory($history, $organisation, $repositoryName, $objects[0]->getOpenAt(), $reportBuilder);
 
         $output->writeln('<info>Finished</info>');
     }
